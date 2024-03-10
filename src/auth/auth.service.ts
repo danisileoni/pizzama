@@ -38,6 +38,7 @@ export class AuthService {
 
       return userObject;
     } catch (error) {
+      console.log(error);
       this.handelErrorExeption(error);
     }
   }

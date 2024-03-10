@@ -4,6 +4,7 @@ import { ProjectsController } from './projects.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Project, ProjectSchema } from './entities/project.entity';
 import { generateSlug } from 'src/middlewares/generate-slug.middleware';
+import { User, UserSchema } from 'src/auth/entities/user.entity';
 
 @Module({
   controllers: [ProjectsController],
@@ -19,6 +20,13 @@ import { generateSlug } from 'src/middlewares/generate-slug.middleware';
         },
       },
     ]),
+    MongooseModule.forFeature([
+      {
+        name: User.name,
+        schema: UserSchema,
+      },
+    ]),
   ],
+  exports: [],
 })
 export class ProjectsModule {}

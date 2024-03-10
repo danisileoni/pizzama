@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Schema as MongooseSchema } from 'mongoose';
 @Schema()
 export class User extends Document {
   @Prop({
@@ -42,6 +42,9 @@ export class User extends Document {
     index: true,
   })
   roles: string[];
+
+  @Prop({ type: [{ type: MongooseSchema.Types.ObjectId, ref: 'Project' }] })
+  assignedProjects: MongooseSchema.Types.ObjectId[];
 
   token;
 }

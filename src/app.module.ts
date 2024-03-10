@@ -13,5 +13,6 @@ import { ProjectsModule } from './projects/projects.module';
   ],
   controllers: [],
   providers: [],
+  exports: [],
 })
 export class AppModule {}

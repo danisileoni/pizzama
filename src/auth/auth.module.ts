@@ -7,6 +7,7 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { Project, ProjectSchema } from 'src/projects/entities/project.entity';
 
 @Module({
   controllers: [UsersController],
@@ -17,6 +18,12 @@ import { JwtStrategy } from './strategies/jwt.strategy';
       {
         name: User.name,
         schema: UserSchema,
+      },
+    ]),
+    MongooseModule.forFeature([
+      {
+        name: Project.name,
+        schema: ProjectSchema,
       },
     ]),
     PassportModule.register({ defaultStrategy: 'jwt' }),

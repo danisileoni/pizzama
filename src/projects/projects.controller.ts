@@ -20,6 +20,14 @@ export class ProjectsController {
     return this.projectsService.create(createProjectDto);
   }
 
+  @Post(':id/:userid')
+  assignUserProject(
+    @Param('id') projectId: string,
+    @Param('userid') userId: string,
+  ) {
+    return this.projectsService.assignUserToProject(projectId, userId);
+  }
+
   @Get()
   findAll() {
     return this.projectsService.findAll();
@@ -30,13 +38,13 @@ export class ProjectsController {
     return this.projectsService.findOne(term);
   }
 
-  @Patch(':id')
+  @Patch('update/:id')
   update(@Param('id') id: string, @Body() updateProjectDto: UpdateProjectDto) {
-    return this.projectsService.update(+id, updateProjectDto);
+    return this.projectsService.update(id, updateProjectDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.projectsService.remove(+id);
+    return this.projectsService.remove(id);
   }
 }

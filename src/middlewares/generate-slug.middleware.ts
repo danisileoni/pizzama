@@ -11,6 +11,15 @@ const generateSlugMiddleware = function (this: Project, next) {
   next();
 };
 
+const updateSlugMiddleware = function (next) {
+  const update = this.getUpdate();
+  if (update.name) {
+    update.slug = slugify(update.name, { lower: true, strict: true });
+  }
+  next();
+};
+
 export const generateSlug = function (schema: Schema<Project>) {
   schema.pre('save', generateSlugMiddleware);
+  schema.pre('findOneAndUpdate', updateSlugMiddleware);
 };
