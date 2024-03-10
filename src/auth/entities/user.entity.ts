@@ -37,11 +37,11 @@ export class User extends Document {
   isActive: boolean;
 
   @Prop({
-    default: ['user-role'],
+    default: ['user'],
     unique: false,
     index: true,
   })
-  role: string[];
+  roles: string[];
 
   token;
 }

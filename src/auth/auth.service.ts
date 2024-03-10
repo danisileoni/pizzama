@@ -34,7 +34,7 @@ export class AuthService {
 
       const userObject = user.toObject();
       delete userObject.password;
-      userObject.token = this.getJwtToken({ user: userObject.user });
+      userObject.token = this.getJwtToken({ id: userObject.id });
 
       return userObject;
     } catch (error) {
@@ -47,7 +47,7 @@ export class AuthService {
 
     const userLogin = await this.userModel
       .findOne({ user })
-      .select('user password')
+      .select('user password _id')
       .exec();
 
     if (!userLogin) {
@@ -59,8 +59,8 @@ export class AuthService {
 
     return {
       user: userLogin.user,
-      id: userLogin._id,
-      token: this.getJwtToken({ user: userLogin.user }),
+      id: userLogin.id,
+      token: this.getJwtToken({ id: userLogin.id }),
     };
   }
 
@@ -102,12 +102,11 @@ export class AuthService {
   }
 
   async remove(id: string) {
-    try {
-      await this.userModel.findOneAndDelete({ _id: id });
-      return { message: 'user deleted successfully' };
-    } catch (error) {
-      throw new NotFoundException('Id not found or invalid');
-    }
+    const userDelete = await this.userModel.findOneAndDelete({ _id: id });
+
+    if (!userDelete) throw new NotFoundException('Id not found or invalid');
+
+    return { message: 'user deleted successfully' };
   }
 
   private getJwtToken(payload: JwtPayload) {
