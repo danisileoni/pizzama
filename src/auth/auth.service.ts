@@ -50,10 +50,7 @@ export class AuthService {
       .select('user password _id')
       .exec();
 
-    if (!userLogin) {
-      throw new UnauthorizedException('Credentials are not valid');
-    }
-    if (!bcrypt.compareSync(password, userLogin.password)) {
+    if (!userLogin || !bcrypt.compareSync(password, userLogin.password)) {
       throw new UnauthorizedException('Credentials are not valid');
     }
 
