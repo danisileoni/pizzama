@@ -41,7 +41,10 @@ export class ProjectsService {
     }
 
     // checks if the project user already has the user id
-    if (project.assignedUsers.includes(user.id)) {
+    if (
+      project.assignedUsers.includes(user.id) ||
+      user.assignedProjects.includes(project.id)
+    ) {
       throw new BadRequestException('User already assigned to project');
     }
 
