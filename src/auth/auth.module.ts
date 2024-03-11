@@ -40,6 +40,6 @@ import { Project, ProjectSchema } from 'src/projects/entities/project.entity';
       },
     }),
   ],
-  exports: [JwtStrategy],
+  exports: [JwtStrategy, AuthModule, JwtStrategy, PassportModule],
 })
 export class AuthModule {}
