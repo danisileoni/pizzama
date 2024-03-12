@@ -38,14 +38,14 @@ export class Task extends Document {
     require: true,
     index: true,
   })
-  projectId: MongooseSchema.Types.ObjectId[];
+  projectId: MongooseSchema.Types.ObjectId;
 
   @Prop({
     type: [{ type: MongooseSchema.Types.ObjectId, ref: 'Project' }],
     require: true,
     index: true,
   })
-  userId: MongooseSchema.Types.ObjectId[];
+  userId: MongooseSchema.Types.ObjectId;
 }
 
 export const TaskSchema = SchemaFactory.createForClass(Task);

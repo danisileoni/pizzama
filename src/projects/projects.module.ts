@@ -20,6 +20,6 @@ import { User, UserSchema } from 'src/auth/entities/user.entity';
       },
     ]),
   ],
-  exports: [],
+  exports: [ProjectsModule],
 })
 export class ProjectsModule {}

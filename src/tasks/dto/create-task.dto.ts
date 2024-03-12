@@ -1,6 +1,6 @@
 import {
-  IsArray,
-  IsDate,
+  IsIn,
+  IsMongoId,
   IsString,
   MaxLength,
   MinLength,
@@ -18,20 +18,19 @@ export class CreateTaskDto {
   @MinLength(500)
   description: string;
 
-  @IsDate()
+  @IsString()
   startDate: Date;
 
-  @IsDate()
+  @IsString()
   endDate: Date;
 
   @IsString()
+  @IsIn(['back', 'front'])
   backOrFront: string;
 
-  @IsArray()
-  @IsString({ each: true })
-  projectId: MongooseSchema.Types.ObjectId[];
+  @IsMongoId()
+  projectId: MongooseSchema.Types.ObjectId;
 
-  @IsArray()
-  @IsString({ each: true })
-  userId: MongooseSchema.Types.ObjectId[];
+  @IsMongoId()
+  userId: MongooseSchema.Types.ObjectId;
 }
