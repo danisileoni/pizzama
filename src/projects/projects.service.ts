@@ -26,7 +26,7 @@ export class ProjectsService {
       console.log(project);
       return project;
     } catch (error) {
-      this.handelErrorExeption(error);
+      this.handleErrorExeption(error);
     }
   }
 
@@ -83,36 +83,40 @@ export class ProjectsService {
   }
 
   // update project
-  update(id: string, updateProjectDto: UpdateProjectDto) {
+  async update(id: string, updateProjectDto: UpdateProjectDto) {
     try {
-      const project = this.projectModel.findByIdAndUpdate(
+      const project = await this.projectModel.findByIdAndUpdate(
         id,
         updateProjectDto,
         { new: true },
       );
 
+      console.log(project);
+
       return project;
     } catch (error) {
-      this.handelErrorExeption(error);
+      this.handleErrorExeption(error);
     }
   }
 
-  remove(id: string) {
-    const projectDelete = this.projectModel.findByIdAndDelete(id);
-    if (!projectDelete) {
-      throw new NotFoundException(
-        `Not found project with id: ${projectDelete}`,
-      );
+  async remove(id: string) {
+    try {
+      await this.projectModel.findByIdAndDelete(id);
+      return { message: 'Project deleted successfully' };
+    } catch (error) {
+      this.handleErrorExeption(error);
     }
-
-    return { message: 'Project deleted successfully' };
   }
 
-  private handelErrorExeption(error) {
+  private handleErrorExeption(error) {
     if (error.code === 11000) {
+      console.log(error);
       throw new BadRequestException(
         `Project exist in db ${JSON.stringify(error.keyValue)}`,
       );
+    }
+    if (error.status === 404) {
+      throw new NotFoundException(`not found id`);
     }
     console.log(error);
   }

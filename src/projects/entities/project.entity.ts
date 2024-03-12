@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema } from 'mongoose';
+import { generateSlug } from 'src/middlewares/generate-slug.middleware';
 
 @Schema()
 export class Project extends Document {
@@ -8,7 +9,7 @@ export class Project extends Document {
     required: true,
     index: true,
   })
-  title: string;
+  name: string;
 
   @Prop({
     required: true,
@@ -35,15 +36,15 @@ export class Project extends Document {
   isActive: boolean;
 
   @Prop({
+    type: String,
     unique: true,
     index: true,
   })
   slug: string;
 
-  @Prop({
-    type: [{ type: MongooseSchema.Types.ObjectId, ref: 'User' }],
-  })
+  @Prop({ type: [{ type: MongooseSchema.Types.ObjectId, ref: 'User' }] })
   assignedUsers: MongooseSchema.Types.ObjectId[];
 }
 
 export const ProjectSchema = SchemaFactory.createForClass(Project);
+generateSlug(ProjectSchema);
