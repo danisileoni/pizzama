@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateReportDto } from './dto/create-report.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Report } from './entities/report.entity';
@@ -22,26 +27,48 @@ export class ReportsService {
     user: User,
     projectId: Project,
   ) {
-    const reportData = {
-      ...createReportDto,
-      user,
-      projectId,
-    };
+    try {
+      const reportData = {
+        ...createReportDto,
+        user,
+        projectId,
+      };
 
-    const report = await this.reportModel.create(reportData);
+      const report = await this.reportModel.create(reportData);
 
-    return report;
+      return report;
+    } catch (error) {
+      console.log(error);
+      throw new InternalServerErrorException('Chaeck server logs');
+    }
   }
 
   findAll() {
-    return `This action returns all reports`;
+    const reports = this.reportModel.find();
+
+    if (!reports) {
+      throw new NotFoundException('Not founds reports');
+    }
+
+    return reports;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} report`;
+  async findOne(id: string) {
+    try {
+      const report = await this.reportModel.findById(id);
+      return report;
+    } catch (error) {
+      throw new BadRequestException(`Id: ${id} invalid`);
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} report`;
+  async remove(id: string) {
+    try {
+      const report = await this.reportModel.findByIdAndDelete(id);
+
+      return report;
+    } catch (error) {
+      throw new BadRequestException(`Id: ${id} invalid`);
+    }
   }
 }

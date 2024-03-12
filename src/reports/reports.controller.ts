@@ -21,18 +21,18 @@ export class ReportsController {
     return this.reportsService.create(createReportDto, user, projectId);
   }
 
-  @Get('report')
+  @Get()
   findAll() {
     return this.reportsService.findAll();
   }
 
-  @Get('report/:id')
+  @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.reportsService.findOne(+id);
+    return this.reportsService.findOne(id);
   }
 
-  @Delete('report/:id')
+  @Delete('remove/:id')
   remove(@Param('id') id: string) {
-    return this.reportsService.remove(+id);
+    return this.reportsService.remove(id);
   }
 }

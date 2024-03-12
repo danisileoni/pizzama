@@ -8,7 +8,7 @@ export class Project extends Document {
     required: true,
     index: true,
   })
-  name: string;
+  title: string;
 
   @Prop({
     required: true,
@@ -40,7 +40,9 @@ export class Project extends Document {
   })
   slug: string;
 
-  @Prop({ type: [{ type: MongooseSchema.Types.ObjectId, ref: 'User' }] })
+  @Prop({
+    type: [{ type: MongooseSchema.Types.ObjectId, ref: 'User' }],
+  })
   assignedUsers: MongooseSchema.Types.ObjectId[];
 }
 

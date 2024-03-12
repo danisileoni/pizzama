@@ -11,6 +11,7 @@ export class Report extends Document {
 
   @Prop({
     type: [Object],
+    required: true,
   })
   user: User[];
 
