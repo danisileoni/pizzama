@@ -46,6 +46,9 @@ export class User extends Document {
   @Prop({ type: [{ type: MongooseSchema.Types.ObjectId, ref: 'Project' }] })
   assignedProjects: MongooseSchema.Types.ObjectId[];
 
+  @Prop({ type: [{ type: MongooseSchema.Types.ObjectId, ref: 'Task' }] })
+  assignedTasks: MongooseSchema.Types.ObjectId[];
+
   token;
 }
 

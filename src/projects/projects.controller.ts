@@ -10,6 +10,7 @@ import {
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
+import { AssignedUserToProjectDto } from './dto/assigned-user-to-project.dto';
 
 @Controller('projects')
 export class ProjectsController {
@@ -20,12 +21,11 @@ export class ProjectsController {
     return this.projectsService.create(createProjectDto);
   }
 
-  @Post(':id/:userid')
+  @Post('assign-user-project')
   assignUserProject(
-    @Param('id') projectId: string,
-    @Param('userid') userId: string,
+    @Body() assignedUserToProjectDto: AssignedUserToProjectDto,
   ) {
-    return this.projectsService.assignUserToProject(projectId, userId);
+    return this.projectsService.assignUserToProject(assignedUserToProjectDto);
   }
 
   @Get()

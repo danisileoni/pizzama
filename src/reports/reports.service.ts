@@ -16,10 +16,6 @@ export class ReportsService {
   constructor(
     @InjectModel(Report.name)
     private readonly reportModel: Model<Report>,
-    @InjectModel(User.name)
-    private readonly userModel: Model<User>,
-    @InjectModel(Project.name)
-    private readonly projectModel: Model<Project>,
   ) {}
 
   async create(

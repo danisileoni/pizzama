@@ -62,6 +62,14 @@ export class AuthService {
     };
   }
 
+  async checkAuthStatus(user: User) {
+    return {
+      user: user.user,
+      id: user.id,
+      token: this.getJwtToken({ id: user.id }),
+    };
+  }
+
   async findAll() {
     return await this.userModel.find();
   }

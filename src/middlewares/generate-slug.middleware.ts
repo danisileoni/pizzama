@@ -8,8 +8,6 @@ export const generateSlugMiddleware = async function (this: Project, next) {
     this.slug = slugify(this.name, { lower: true, strict: true });
   }
 
-  console.log('holaa');
-
   await next();
 };
 

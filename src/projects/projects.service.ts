@@ -9,6 +9,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Project } from './entities/project.entity';
 import { Model, isValidObjectId } from 'mongoose';
 import { User } from 'src/auth/entities/user.entity';
+import { AssignedUserToProjectDto } from './dto/assigned-user-to-project.dto';
 
 @Injectable()
 export class ProjectsService {
@@ -31,11 +32,15 @@ export class ProjectsService {
   }
 
   async assignUserToProject(
-    projectId: string,
-    userId: string,
+    assignedUserToProjectDto: AssignedUserToProjectDto,
   ): Promise<{ project: Project; user: User }> {
-    const project = await this.projectModel.findById(projectId);
-    const user = await this.userModel.findById(userId);
+    const { projectId, userId } = assignedUserToProjectDto;
+
+    const [project, user] = await Promise.all([
+      this.projectModel.findById(projectId),
+      this.userModel.findById(userId),
+    ]);
+
     if (!project || !user) {
       throw new NotFoundException('Project not found');
     }
@@ -51,6 +56,7 @@ export class ProjectsService {
     project.assignedUsers.push(user.id);
     user.assignedProjects.push(project.id);
     await project.save();
+    delete user.password;
     await user.save();
 
     return {

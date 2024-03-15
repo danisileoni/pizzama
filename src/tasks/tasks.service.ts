@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Task } from './entities/task.entity';
@@ -18,29 +22,55 @@ export class TasksService {
   ) {}
 
   async create(createTaskDto: CreateTaskDto) {
-    const projectId = await this.projectModel.findById(createTaskDto.projectId);
-    const userId = await this.userModel.findById(createTaskDto.userId);
+    const { userId, projectId } = createTaskDto;
 
-    if (!(userId && projectId)) {
+    const [user, project] = await Promise.all([
+      this.userModel.findById(userId).populate('assignedTasks', '_id'),
+      this.projectModel.findById(projectId).populate('assignedTasks', '_id'),
+    ]);
+
+    if (!(user && project)) {
       throw new NotFoundException(
         `userId: ${createTaskDto.userId} or ProjectId: ${createTaskDto.projectId} not found`,
       );
     }
 
-    const task = this.taskModel.create(createTaskDto);
+    const task = await this.taskModel.create(createTaskDto);
+
+    user.assignedTasks.push(task._id);
+    project.assignedTasks.push(task._id);
+    await user.save();
+    await project.save();
 
     return task;
   }
 
-  findAll() {
-    return `This action returns all tasks`;
+  async findAll() {
+    const tasks = await this.taskModel.find();
+
+    if (!tasks) {
+      throw new NotFoundException('Not founds tasks');
+    }
+
+    return tasks;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} task`;
+  async findOne(id: string) {
+    try {
+      const task = await this.taskModel.findById(id);
+      return task;
+    } catch (error) {
+      throw new BadRequestException(`Id: ${id} invalid`);
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} task`;
+  async remove(id: string) {
+    try {
+      const task = await this.taskModel.findByIdAndDelete(id);
+
+      return task;
+    } catch (error) {
+      throw new BadRequestException(`Id: ${id} invalid`);
+    }
   }
 }
