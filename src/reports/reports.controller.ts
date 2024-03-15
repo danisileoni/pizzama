@@ -22,16 +22,19 @@ export class ReportsController {
   }
 
   @Get()
+  @Auth(ValidRoles.user)
   findAll() {
     return this.reportsService.findAll();
   }
 
   @Get(':id')
+  @Auth(ValidRoles.user)
   findOne(@Param('id') id: string) {
     return this.reportsService.findOne(id);
   }
 
   @Delete('remove/:id')
+  @Auth(ValidRoles.superUser, ValidRoles.admin)
   remove(@Param('id') id: string) {
     return this.reportsService.remove(id);
   }

@@ -4,6 +4,7 @@ import { ProjectsController } from './projects.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Project, ProjectSchema } from './entities/project.entity';
 import { User, UserSchema } from 'src/auth/entities/user.entity';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   controllers: [ProjectsController],
@@ -19,6 +20,7 @@ import { User, UserSchema } from 'src/auth/entities/user.entity';
         schema: UserSchema,
       },
     ]),
+    AuthModule,
   ],
   exports: [ProjectsModule],
 })
