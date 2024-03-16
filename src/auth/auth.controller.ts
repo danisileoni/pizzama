@@ -31,12 +31,13 @@ export class UsersController {
   }
 
   @Get('logout')
+  @Auth(ValidRoles.user)
   logout(@Res() res: Response) {
     return this.authService.logout(res);
   }
 
   @Get('check-status')
-  @Auth()
+  @Auth(ValidRoles.user)
   checkAuthStatus(@GetUser() user: User, @Res() res: Response) {
     return this.authService.checkAuthStatus(user, res);
   }
