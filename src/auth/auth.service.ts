@@ -13,6 +13,7 @@ import { LoginUserDto, CreateUserDto, UpdateUserDto } from './dto';
 import { User } from './entities/user.entity';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { JwtService } from '@nestjs/jwt';
+import { Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -22,7 +23,7 @@ export class AuthService {
     private readonly jwtServices: JwtService,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserDto: CreateUserDto, res: Response) {
     createUserDto.user = createUserDto.user.toLocaleLowerCase();
     try {
       const { password, ...userData } = createUserDto;
@@ -36,14 +37,15 @@ export class AuthService {
       delete userObject.password;
       userObject.token = this.getJwtToken({ id: userObject.id });
 
-      return userObject;
+      res.cookie('token', userObject.token);
+      return res.send({ userObject });
     } catch (error) {
       console.log(error);
       this.handelErrorExeption(error);
     }
   }
 
-  async login(loginUserDto: LoginUserDto) {
+  async login(loginUserDto: LoginUserDto, res: Response) {
     const { password, user } = loginUserDto;
 
     const userLogin = await this.userModel
@@ -55,19 +57,29 @@ export class AuthService {
       throw new UnauthorizedException('Credentials are not valid');
     }
 
-    return {
+    const token = this.getJwtToken({ id: userLogin.id });
+
+    res.cookie('token', token);
+    return res.send({
       user: userLogin.user,
       id: userLogin.id,
-      token: this.getJwtToken({ id: userLogin.id }),
-    };
+      token,
+    });
   }
 
-  async checkAuthStatus(user: User) {
-    return {
+  async logout(res: Response) {
+    res.clearCookie('token');
+    return res.send({ message: 'Logged succes - Clear cookie complete' });
+  }
+
+  async checkAuthStatus(user: User, res: Response) {
+    const token = this.getJwtToken({ id: user.id });
+    res.cookie('token', token);
+    return res.send({
       user: user.user,
       id: user.id,
-      token: this.getJwtToken({ id: user.id }),
-    };
+      token,
+    });
   }
 
   async findAll() {
