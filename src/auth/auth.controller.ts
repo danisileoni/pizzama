@@ -7,14 +7,14 @@ import {
   Param,
   Delete,
   Res,
+  HttpCode,
+  Req,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginUserDto, CreateUserDto, UpdateUserDto } from './dto';
 import { Auth } from './decorators/role-protected/auth.decorator';
 import { ValidRoles } from './interfaces/valid-roles';
-import { GetUser } from './decorators/role-protected/get-user.decorator';
-import { User } from './entities/user.entity';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 
 @Controller('auth')
 export class UsersController {
@@ -25,6 +25,7 @@ export class UsersController {
     return this.authService.create(createUserDto, res);
   }
 
+  @HttpCode(200)
   @Post('login')
   login(@Body() loginUserDto: LoginUserDto, @Res() res: Response) {
     return this.authService.login(loginUserDto, res);
@@ -36,10 +37,14 @@ export class UsersController {
     return this.authService.logout(res);
   }
 
-  @Get('check-status')
   @Auth(ValidRoles.user)
-  checkAuthStatus(@GetUser() user: User, @Res() res: Response) {
-    return this.authService.checkAuthStatus(user, res);
+  checkAuthStatus(@Req() req: Request, @Res() res: Response) {
+    return this.authService.refreshToken(req, res);
+  }
+
+  @Get('verify')
+  verify(@Req() req: Request) {
+    return this.authService.verify(req);
   }
 
   @Get()

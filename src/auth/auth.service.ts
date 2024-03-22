@@ -1,5 +1,5 @@
 import {
-  BadRequestException,
+  ConflictException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -13,7 +13,7 @@ import { LoginUserDto, CreateUserDto, UpdateUserDto } from './dto';
 import { User } from './entities/user.entity';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { JwtService } from '@nestjs/jwt';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -33,12 +33,14 @@ export class AuthService {
         password: bcrypt.hashSync(password, 10),
       });
 
-      const userObject = user.toObject();
-      delete userObject.password;
-      userObject.token = this.getJwtToken({ id: userObject.id });
+      const token = this.getJwtToken({ id: user.id });
 
-      res.cookie('token', userObject.token);
-      return res.send({ userObject });
+      res.cookie('token', token, {
+        httpOnly: false,
+        sameSite: 'lax',
+        secure: true,
+      });
+      return res.send({ user });
     } catch (error) {
       console.log(error);
       this.handelErrorExeption(error);
@@ -50,7 +52,7 @@ export class AuthService {
 
     const userLogin = await this.userModel
       .findOne({ user })
-      .select('user password _id')
+      .select('user email password _id')
       .exec();
 
     if (!userLogin || !bcrypt.compareSync(password, userLogin.password)) {
@@ -59,11 +61,14 @@ export class AuthService {
 
     const token = this.getJwtToken({ id: userLogin.id });
 
-    res.cookie('token', token);
+    res.cookie('token', token, {
+      httpOnly: false,
+      sameSite: 'lax',
+      secure: true,
+    });
     return res.send({
       user: userLogin.user,
       id: userLogin.id,
-      token,
     });
   }
 
@@ -72,14 +77,62 @@ export class AuthService {
     return res.send({ message: 'Logged succes - Clear cookie complete' });
   }
 
-  async checkAuthStatus(user: User, res: Response) {
-    const token = this.getJwtToken({ id: user.id });
-    res.cookie('token', token);
-    return res.send({
-      user: user.user,
-      id: user.id,
-      token,
-    });
+  async refreshToken(req: Request, res: Response) {
+    const { token } = req.cookies;
+    if (!token) throw new UnauthorizedException('Unauthorized');
+
+    try {
+      const decodedToken = this.jwtServices.verify(token, {
+        secret: process.env.JWT_SECRET,
+      });
+
+      const user = await this.userModel.findById(decodedToken.id);
+
+      if (!user) {
+        throw new Error();
+      }
+
+      const newToken = this.getJwtToken({ id: user.id });
+
+      res.cookie('token', newToken, {
+        httpOnly: false,
+        sameSite: 'lax',
+        secure: true,
+      });
+      return res.send({
+        user: user.user,
+        id: user.id,
+        email: user.email,
+      });
+    } catch (error) {
+      throw new UnauthorizedException('Invalid Token signature');
+    }
+  }
+
+  async verify(req: Request) {
+    const { token } = req.cookies;
+
+    if (!token) throw new UnauthorizedException('Unauthorized');
+
+    try {
+      const decodedToken = this.jwtServices.verify(token, {
+        secret: process.env.JWT_SECRET,
+      });
+
+      const user = await this.userModel.findById(decodedToken.id);
+
+      if (!user) {
+        throw new Error();
+      }
+
+      return {
+        id: user.id,
+        user: user.user,
+        email: user.email,
+      };
+    } catch (error) {
+      throw new UnauthorizedException('Invalid Token signature');
+    }
   }
 
   async findAll() {
@@ -133,7 +186,7 @@ export class AuthService {
 
   private handelErrorExeption(error) {
     if (error.code === 11000) {
-      throw new BadRequestException(
+      throw new ConflictException(
         `User exist in db ${JSON.stringify(error.keyValue)}`,
       );
     }

@@ -27,6 +27,7 @@ export class User extends Document {
     required: true,
     unique: false,
     index: true,
+    select: false,
   })
   password: string;
 
@@ -48,8 +49,6 @@ export class User extends Document {
 
   @Prop({ type: [{ type: MongooseSchema.Types.ObjectId, ref: 'Task' }] })
   assignedTasks: MongooseSchema.Types.ObjectId[];
-
-  token;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
