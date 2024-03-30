@@ -64,6 +64,22 @@ export class TasksService {
     }
   }
 
+  async findForUser(user: User) {
+    try {
+      const tasks = await this.taskModel
+        .find({ userId: user.id })
+        .sort({ startDate: -1 });
+
+      if (!tasks) {
+        throw new Error();
+      }
+
+      return tasks;
+    } catch (error) {
+      throw new NotFoundException('Not found userTask');
+    }
+  }
+
   async remove(id: string) {
     try {
       const task = await this.taskModel.findByIdAndDelete(id);

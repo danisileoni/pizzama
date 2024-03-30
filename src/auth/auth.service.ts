@@ -78,10 +78,9 @@ export class AuthService {
   }
 
   async refreshToken(req: Request, res: Response) {
-    const { token } = req.cookies;
-    if (!token) throw new UnauthorizedException('Unauthorized');
-
     try {
+      const { token } = req.cookies;
+      if (!token) throw new UnauthorizedException('Unauthorized');
       const decodedToken = this.jwtServices.verify(token, {
         secret: process.env.JWT_SECRET,
       });
@@ -97,7 +96,7 @@ export class AuthService {
       res.cookie('token', newToken, {
         httpOnly: false,
         sameSite: 'lax',
-        secure: true,
+        secure: false,
       });
       return res.send({
         user: user.user,
@@ -105,6 +104,7 @@ export class AuthService {
         email: user.email,
       });
     } catch (error) {
+      console.log(error);
       throw new UnauthorizedException('Invalid Token signature');
     }
   }
@@ -149,6 +149,10 @@ export class AuthService {
       user = await this.userModel.findOne({
         user: term.toLocaleLowerCase().trim(),
       });
+    }
+
+    if (!user) {
+      throw new NotFoundException('Not Found User');
     }
 
     return user;

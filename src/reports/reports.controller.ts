@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Query,
+} from '@nestjs/common';
 import { ReportsService } from './reports.service';
 import { CreateReportDto } from './dto/create-report.dto';
 import { Auth } from 'src/auth/decorators/role-protected/auth.decorator';
@@ -6,6 +14,7 @@ import { ValidRoles } from 'src/auth/interfaces/valid-roles';
 import { GetUser } from 'src/auth/decorators/role-protected/get-user.decorator';
 import { Project } from 'src/projects/entities/project.entity';
 import { User } from 'src/auth/entities/user.entity';
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
 
 @Controller('reports')
 export class ReportsController {
@@ -23,14 +32,20 @@ export class ReportsController {
 
   @Get()
   @Auth(ValidRoles.user)
-  findAll() {
-    return this.reportsService.findAll();
+  findAll(@Query() paginationDto: PaginationDto) {
+    return this.reportsService.findAll(paginationDto);
   }
 
-  @Get(':id')
+  @Get('report/:id')
   @Auth(ValidRoles.user)
   findOne(@Param('id') id: string) {
     return this.reportsService.findOne(id);
+  }
+
+  @Get('latest')
+  @Auth(ValidRoles.user)
+  findLatest() {
+    return this.reportsService.findLatest();
   }
 
   @Delete('remove/:id')

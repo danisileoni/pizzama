@@ -3,6 +3,8 @@ import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { Auth } from 'src/auth/decorators/role-protected/auth.decorator';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles';
+import { GetUser } from 'src/auth/decorators/role-protected/get-user.decorator';
+import { User } from 'src/auth/entities/user.entity';
 
 @Controller('tasks')
 export class TasksController {
@@ -20,10 +22,16 @@ export class TasksController {
     return this.tasksService.findAll();
   }
 
-  @Get(':id')
+  @Get('task/:id')
   @Auth(ValidRoles.user)
   findOne(@Param('id') id: string) {
     return this.tasksService.findOne(id);
+  }
+
+  @Get('for-user')
+  @Auth(ValidRoles.user)
+  findForUser(@GetUser() user: User) {
+    return this.tasksService.findForUser(user);
   }
 
   @Delete(':id')

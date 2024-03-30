@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
@@ -13,6 +14,7 @@ import { UpdateProjectDto } from './dto/update-project.dto';
 import { AssignedUserToProjectDto } from './dto/assigned-user-to-project.dto';
 import { Auth } from 'src/auth/decorators/role-protected/auth.decorator';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles';
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
 
 @Controller('projects')
 export class ProjectsController {
@@ -34,8 +36,8 @@ export class ProjectsController {
 
   @Get()
   @Auth(ValidRoles.user)
-  findAll() {
-    return this.projectsService.findAll();
+  findAll(@Query() paginationDto: PaginationDto) {
+    return this.projectsService.findAll(paginationDto);
   }
 
   @Get(':term')

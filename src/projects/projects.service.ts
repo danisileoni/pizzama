@@ -10,6 +10,7 @@ import { Project } from './entities/project.entity';
 import { Model, isValidObjectId } from 'mongoose';
 import { User } from 'src/auth/entities/user.entity';
 import { AssignedUserToProjectDto } from './dto/assigned-user-to-project.dto';
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
 
 @Injectable()
 export class ProjectsService {
@@ -65,8 +66,14 @@ export class ProjectsService {
     };
   }
 
-  async findAll() {
-    return await this.projectModel.find();
+  async findAll(paginationDto: PaginationDto) {
+    const { limit, offset } = paginationDto;
+
+    const projects = await this.projectModel.find().skip(offset).limit(limit);
+    if (projects.length === 0) {
+      throw new NotFoundException('Not found projects');
+    }
+    return projects;
   }
 
   async findOne(term: string) {

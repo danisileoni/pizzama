@@ -29,5 +29,6 @@ import { User, UserSchema } from 'src/auth/entities/user.entity';
     ProjectsModule,
     AuthModule,
   ],
+  exports: [ReportsModule],
 })
 export class ReportsModule {}

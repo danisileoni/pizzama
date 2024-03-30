@@ -37,7 +37,7 @@ export class UsersController {
     return this.authService.logout(res);
   }
 
-  @Auth(ValidRoles.user)
+  @Get('refresh')
   checkAuthStatus(@Req() req: Request, @Res() res: Response) {
     return this.authService.refreshToken(req, res);
   }

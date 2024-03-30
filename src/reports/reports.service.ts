@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateReportDto } from './dto/create-report.dto';
@@ -10,12 +9,15 @@ import { Report } from './entities/report.entity';
 import { Model } from 'mongoose';
 import { User } from 'src/auth/entities/user.entity';
 import { Project } from 'src/projects/entities/project.entity';
+import { PaginationDto } from '../common/dtos/pagination.dto';
 
 @Injectable()
 export class ReportsService {
   constructor(
     @InjectModel(Report.name)
     private readonly reportModel: Model<Report>,
+    @InjectModel(Project.name)
+    private readonly projectModel: Model<Project>,
   ) {}
 
   async create(
@@ -29,22 +31,40 @@ export class ReportsService {
         user,
         projectId,
       };
+      const project = await this.projectModel.findById(projectId);
+      if (!project) {
+        throw new Error();
+      }
 
       const report = await this.reportModel.create(reportData);
+
+      project.assignedReports.push(report._id);
+      await this.projectModel.findByIdAndUpdate(project._id, project);
 
       return report;
     } catch (error) {
       console.log(error);
-      throw new InternalServerErrorException('Chaeck server logs');
+      throw new NotFoundException('Not Found Project');
     }
   }
 
-  findAll() {
-    const reports = this.reportModel.find();
+  async findAll(paginationDto: PaginationDto) {
+    const { limit, offset } = paginationDto;
 
-    if (!reports) {
+    const reports = await this.reportModel.find().skip(offset).limit(limit);
+
+    if (reports.length === 0) {
       throw new NotFoundException('Not founds reports');
     }
+
+    return reports;
+  }
+
+  async findLatest() {
+    const reports = await this.reportModel
+      .find()
+      .sort({ createAt: -1 })
+      .limit(5);
 
     return reports;
   }

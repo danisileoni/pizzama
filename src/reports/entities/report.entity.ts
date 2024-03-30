@@ -6,14 +6,15 @@ import { User } from 'src/auth/entities/user.entity';
 export class Report extends Document {
   @Prop({
     type: [{ type: MongooseSchema.Types.ObjectId, ref: 'Project' }],
+    required: true,
   })
   projectId: MongooseSchema.Types.ObjectId[];
 
   @Prop({
-    type: [Object],
+    type: Object,
     required: true,
   })
-  user: User[];
+  user: User;
 
   @Prop({
     default: [],
@@ -28,6 +29,12 @@ export class Report extends Document {
     index: true,
   })
   description: string[];
+
+  @Prop({
+    default: Date.now,
+    index: true,
+  })
+  createAt: Date;
 }
 
 export const ReportSchema = SchemaFactory.createForClass(Report);
