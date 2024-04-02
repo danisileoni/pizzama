@@ -95,6 +95,22 @@ export class ProjectsService {
     return project;
   }
 
+  async findForUser(user: User) {
+    try {
+      const projects = await this.projectModel
+        .find({
+          assignedUsers: user.id,
+        })
+        .sort({ startDate: -1 });
+
+      if (!projects) throw Error();
+
+      return projects;
+    } catch (error) {
+      throw new NotFoundException('Not found projects');
+    }
+  }
+
   // update project
   async update(id: string, updateProjectDto: UpdateProjectDto) {
     try {

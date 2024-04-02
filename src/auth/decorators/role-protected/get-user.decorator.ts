@@ -16,6 +16,7 @@ export const GetUser = createParamDecorator((data, ctx: ExecutionContext) => {
     id: user.id,
     user: user.user,
     fullName: user.fullName,
+    roles: user.roles,
   };
 
   return !data ? userData : userData[data];

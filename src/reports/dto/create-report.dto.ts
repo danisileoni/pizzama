@@ -7,7 +7,6 @@ export class CreateReportDto {
   title: string;
 
   @IsString()
-  @MaxLength(1000)
-  @MinLength(100)
+  @MaxLength(2000)
   description: string;
 }

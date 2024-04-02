@@ -15,6 +15,8 @@ import { AssignedUserToProjectDto } from './dto/assigned-user-to-project.dto';
 import { Auth } from 'src/auth/decorators/role-protected/auth.decorator';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { GetUser } from 'src/auth/decorators/role-protected/get-user.decorator';
+import { User } from 'src/auth/entities/user.entity';
 
 @Controller('projects')
 export class ProjectsController {
@@ -44,6 +46,12 @@ export class ProjectsController {
   @Auth(ValidRoles.user)
   findOne(@Param('term') term: string) {
     return this.projectsService.findOne(term);
+  }
+
+  @Get('user/for-user')
+  @Auth(ValidRoles.user)
+  findForUser(@GetUser() user: User) {
+    return this.projectsService.findForUser(user);
   }
 
   @Patch('update/:id')

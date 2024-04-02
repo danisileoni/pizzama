@@ -15,6 +15,8 @@ import { LoginUserDto, CreateUserDto, UpdateUserDto } from './dto';
 import { Auth } from './decorators/role-protected/auth.decorator';
 import { ValidRoles } from './interfaces/valid-roles';
 import { Response, Request } from 'express';
+import { GetUser } from './decorators/role-protected/get-user.decorator';
+import { User } from './entities/user.entity';
 
 @Controller('auth')
 export class UsersController {
@@ -31,7 +33,8 @@ export class UsersController {
     return this.authService.login(loginUserDto, res);
   }
 
-  @Get('logout')
+  @HttpCode(200)
+  @Post('logout')
   @Auth(ValidRoles.user)
   logout(@Res() res: Response) {
     return this.authService.logout(res);
@@ -57,6 +60,12 @@ export class UsersController {
   @Auth(ValidRoles.user)
   findOne(@Param('term') term: string) {
     return this.authService.findOne(term);
+  }
+
+  @Get('user/active')
+  @Auth(ValidRoles.user)
+  userActive(@GetUser() user: User) {
+    return user;
   }
 
   @Patch(':id')

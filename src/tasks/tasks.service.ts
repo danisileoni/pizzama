@@ -22,7 +22,7 @@ export class TasksService {
   ) {}
 
   async create(createTaskDto: CreateTaskDto) {
-    const { userId, projectId } = createTaskDto;
+    const { userId, projectId, endDate, startDate } = createTaskDto;
 
     const [user, project] = await Promise.all([
       this.userModel.findById(userId).populate('assignedTasks', '_id'),
@@ -34,6 +34,9 @@ export class TasksService {
         `userId: ${createTaskDto.userId} or ProjectId: ${createTaskDto.projectId} not found`,
       );
     }
+
+    createTaskDto.endDate = new Date(endDate);
+    createTaskDto.startDate = new Date(startDate);
 
     const task = await this.taskModel.create(createTaskDto);
 

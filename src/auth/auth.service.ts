@@ -169,7 +169,7 @@ export class AuthService {
 
     const updatedUser = await this.userModel.findByIdAndUpdate(
       id,
-      { $set: { password, user, email } },
+      { $set: { password: bcrypt.hashSync(password, 10), user, email } },
       { new: true },
     );
 
