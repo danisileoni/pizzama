@@ -43,7 +43,7 @@ export class AuthService {
       return res.send({ user });
     } catch (error) {
       console.log(error);
-      this.handelErrorExeption(error);
+      this.handelErrorException(error);
     }
   }
 
@@ -68,13 +68,14 @@ export class AuthService {
     });
     return res.send({
       user: userLogin.user,
+      roles: userLogin.roles,
       id: userLogin.id,
     });
   }
 
   async logout(res: Response) {
     res.clearCookie('token');
-    return res.send({ message: 'Logged succes - Clear cookie complete' });
+    return res.send({ message: 'Logged success - Clear cookie complete' });
   }
 
   async refreshToken(req: Request, res: Response) {
@@ -102,6 +103,7 @@ export class AuthService {
         user: user.user,
         id: user.id,
         email: user.email,
+        roles: user.roles,
       });
     } catch (error) {
       console.log(error);
@@ -129,6 +131,7 @@ export class AuthService {
         id: user.id,
         user: user.user,
         email: user.email,
+        roles: user.roles,
       };
     } catch (error) {
       throw new UnauthorizedException('Invalid Token signature');
@@ -159,21 +162,43 @@ export class AuthService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
-    const userId = await this.userModel.findById(id);
+    const userId = await this.userModel
+      .findById(id)
+      .select('user email password _id');
 
     if (!userId) {
       throw new NotFoundException('User not found');
     }
 
-    const { password, user, email } = updateUserDto;
+    const { password, user, email, currentPassword } = updateUserDto;
 
-    const updatedUser = await this.userModel.findByIdAndUpdate(
-      id,
-      { $set: { password: bcrypt.hashSync(password, 10), user, email } },
-      { new: true },
-    );
+    const updateData: { [key: string]: string } = {
+      user,
+      email,
+    };
 
-    return updatedUser;
+    if (user) {
+      updateData.user.toLocaleLowerCase;
+    }
+
+    if (password || currentPassword) {
+      if (bcrypt.compareSync(currentPassword, userId.password)) {
+        updateData.password = bcrypt.hashSync(password, 10);
+      } else {
+        throw new UnauthorizedException('Invalid password');
+      }
+    }
+
+    try {
+      const updatedUser = await this.userModel.findByIdAndUpdate(
+        id,
+        { $set: updateData },
+        { new: true },
+      );
+      return updatedUser;
+    } catch (error) {
+      this.handelErrorException(error);
+    }
   }
 
   async remove(id: string) {
@@ -188,7 +213,7 @@ export class AuthService {
     return this.jwtServices.sign(payload);
   }
 
-  private handelErrorExeption(error) {
+  private handelErrorException(error) {
     if (error.code === 11000) {
       throw new ConflictException(
         `User exist in db ${JSON.stringify(error.keyValue)}`,
